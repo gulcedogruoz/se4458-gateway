@@ -1,28 +1,28 @@
 # ===========================
-# HotelBookingSystem Dockerfile
+# Ocelot API Gateway Dockerfile
 # ===========================
 
 # 1. Build Stage
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /app
 
-# Copy csproj and restore as distinct layers
+# Copy csproj and restore
 COPY *.sln .
-COPY HotelBookingSystem/*.csproj ./HotelBookingSystem/
+COPY OcelotGateway/*.csproj ./OcelotGateway/
 RUN dotnet restore
 
-# Copy everything else and build
-COPY HotelBookingSystem/. ./HotelBookingSystem/
-WORKDIR /app/HotelBookingSystem
+# Copy all source files and build
+COPY OcelotGateway/. ./OcelotGateway/
+WORKDIR /app/OcelotGateway
 RUN dotnet publish -c Release -o out
 
 # 2. Runtime Stage
 FROM mcr.microsoft.com/dotnet/aspnet:6.0
 WORKDIR /app
-COPY --from=build /app/HotelBookingSystem/out ./
+COPY --from=build /app/OcelotGateway/out ./
 
-# Expose port (change if different in Program.cs)
-EXPOSE 5177
+# Expose the gateway port (e.g. 5000)
+EXPOSE 5000
 
-# Run the application
-ENTRYPOINT ["dotnet", "HotelBookingSystem.dll"]
+# Start the gateway
+ENTRYPOINT ["dotnet", "OcelotGateway.dll"]
